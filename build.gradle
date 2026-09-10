@@ -1,6 +1,6 @@
 plugins {
 	id 'java'
-	id 'org.springframework.boot' version '4.1.0'
+	id 'org.springframework.boot' version '3.4.5'
 	id 'io.spring.dependency-management' version '1.1.7'
 }
 
@@ -13,16 +13,48 @@ java {
 	}
 }
 
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
 repositories {
 	mavenCentral()
 }
 
 dependencies {
+	// Spring Boot Starters
+	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-	testImplementation 'org.springframework.boot:spring-boot-starter-data-jpa-test'
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+	implementation 'org.springframework.boot:spring-boot-starter-mail'
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+	// PostgreSQL
+	runtimeOnly 'org.postgresql:postgresql'
+
+	// Lombok
+	compileOnly 'org.projectlombok:lombok'
+	annotationProcessor 'org.projectlombok:lombok'
+
+	// OpenCSV - CSV 파싱용
+	implementation 'com.opencsv:opencsv:5.9'
+
+	// Test
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+	// Java 25 지원을 위해 ByteBuddy/Mockito 최신 버전으로 강제 업그레이드
+	testImplementation 'net.bytebuddy:byte-buddy:1.17.5'
+	testImplementation 'net.bytebuddy:byte-buddy-agent:1.17.5'
+	testImplementation 'org.mockito:mockito-core:5.18.0'
 }
 
 tasks.named('test') {
 	useJUnitPlatform()
+	// Java 25에서 Mockito inline mock이 동작하도록 모듈 접근 허용
+	jvmArgs '--add-opens', 'java.base/java.lang=ALL-UNNAMED',
+			'--add-opens', 'java.base/java.lang.reflect=ALL-UNNAMED',
+			'--add-opens', 'java.base/java.util=ALL-UNNAMED'
 }
